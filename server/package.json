@@ -15,9 +15,16 @@
   ],
   "license": "ISC",
   "author": "Diksha Somwanshi",
-  "type": "commonjs",
+  "type": "module",
   "main": "src/server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+"scripts": {
+  "dev": "node --watch src/server.js",
+  "start": "node src/server.js"
+},
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "mongoose": "^9.10.3"
   }
 }
