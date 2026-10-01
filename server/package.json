@@ -1,0 +1,23 @@
+{
+  "name": "ai-interview-coach-server",
+  "version": "1.0.0",
+  "description": "Backend API for the AI Interview Coach — adaptive interviews, AI evaluation, authentication, and interview session management.",
+  "keywords": [
+    "ai",
+    "interview",
+    "interview-prep",
+    "gemini",
+    "react",
+    "nodejs",
+    "express",
+    "mongodb",
+    "fullstack"
+  ],
+  "license": "ISC",
+  "author": "Diksha Somwanshi",
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
