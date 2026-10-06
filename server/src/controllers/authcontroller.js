@@ -75,3 +75,20 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+export const getMe = async (req, res) => {
+  try {
+    const userData = {
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+    };
+    res.status(200).json({
+      user: req.user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
