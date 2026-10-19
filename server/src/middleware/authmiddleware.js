@@ -18,7 +18,6 @@ const decoded = jwt.verify(
   process.env.JWT_SECRET
 );
 
-console.log(decoded);
 const user = await User.findById(decoded.userId);
 
 if (!user) {
