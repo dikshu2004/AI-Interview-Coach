@@ -7,28 +7,28 @@ import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/api";
 
 const POPULAR_TAGS = [
-  "React 19 & Hooks",
-  "TypeScript",
-  "System Scalability",
-  "REST & GraphQL",
-  "Node.js Event Loop",
-  "Database Indexing",
+  "JavaScript Basics",
+  "React & Hooks",
+  "HTML & CSS",
+  "Node.js & Express",
+  "REST APIs",
+  "SQL & MongoDB",
+  "DSA & Problem Solving",
+  "OOP Concepts",
+  "Git & Debugging",
   "STAR Behavioral",
-  "State Management",
-  "Microservices",
-  "CI/CD Pipelines",
 ];
 
 function InterviewSetup() {
   const navigate = useNavigate();
   const { token, isAuthenticated } = useAuth();
 
-  const [role, setRole] = useState("Frontend Engineer");
-  const [experienceLevel, setExperienceLevel] = useState("Senior (5-8 yrs)");
-  const [interviewType, setInterviewType] = useState("Technical Deep Dive");
+  const [role, setRole] = useState("Junior Frontend Developer");
+  const [experienceLevel, setExperienceLevel] = useState("Fresher (0-1 yr)");
+  const [interviewType, setInterviewType] = useState("Technical Fundamentals");
   const [questionCount, setQuestionCount] = useState(3);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(3);
-  const [selectedTags, setSelectedTags] = useState(["React 19 & Hooks", "TypeScript"]);
+  const [selectedTags, setSelectedTags] = useState(["JavaScript Basics", "React & Hooks"]);
   const [customTagInput, setCustomTagInput] = useState("");
   const [isStarting, setIsStarting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -104,16 +104,16 @@ function InterviewSetup() {
   return (
     <div className="container" style={{ padding: "3rem 1.5rem" }}>
       <div style={{ maxWidth: "800px", marginBottom: "2.5rem" }}>
-        <Badge variant="primary" style={{ marginBottom: "0.5rem" }}>Session Configuration</Badge>
+        <Badge variant="primary" style={{ marginBottom: "0.5rem" }}>Fresher & Entry-Level Prep</Badge>
         <h1 style={{ fontSize: "2.25rem", marginBottom: "0.5rem" }}>Customize Your Mock Interview</h1>
-        <p>Configure your target discipline, question focus, and time settings before entering the AI interview room.</p>
+        <p>Choose your entry-level role, experience stage, and focus topics. Questions adapt live based on your answers.</p>
       </div>
 
       <div className="setup-layout-grid">
         {/* Left Form Column */}
         <form onSubmit={handleStartInterview}>
           <Card hoverable={false} className="animate-fade-in stagger-1" style={{ marginBottom: "1.5rem" }}>
-            <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>1. Role & Seniority</h3>
+            <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>1. Role & Experience Level</h3>
 
             <div className="form-group">
               <label className="form-label" htmlFor="setup-role">Target Role</label>
@@ -123,27 +123,25 @@ function InterviewSetup() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option value="Frontend Engineer">Frontend Engineer (React / TypeScript)</option>
-                <option value="Backend Engineer">Backend Engineer (Node / Go / Python)</option>
-                <option value="Full-Stack Developer">Full-Stack Developer (MERN / Next.js)</option>
-                <option value="System Architect">System Architect & Distributed Systems</option>
-                <option value="DevOps Engineer">DevOps & Cloud Infrastructure</option>
-                <option value="Engineering Manager">Engineering Manager / Team Lead</option>
+                <option value="Junior Frontend Developer">Junior Frontend Developer (HTML, CSS, JS, React)</option>
+                <option value="Junior Backend Developer">Junior Backend Developer (Node.js, Express, Python, DBs)</option>
+                <option value="Entry-Level Full-Stack Developer">Entry-Level Full-Stack Developer (MERN / Web Apps)</option>
+                <option value="Software Engineer Trainee / Intern">Software Engineer Trainee / Intern (DSA, OOP, Core CS)</option>
+                <option value="Associate QA / DevOps Engineer">Associate QA / DevOps Engineer (Testing, Git, Linux)</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="setup-exp">Experience Tier</label>
+              <label className="form-label" htmlFor="setup-exp">Experience Level</label>
               <select
                 id="setup-exp"
                 className="form-select"
                 value={experienceLevel}
                 onChange={(e) => setExperienceLevel(e.target.value)}
               >
-                <option value="Junior / Entry (0-2 yrs)">Junior / Entry-Level (0-2 yrs)</option>
-                <option value="Mid-Level (2-5 yrs)">Mid-Level (2-5 yrs)</option>
-                <option value="Senior (5-8 yrs)">Senior Engineer (5-8 yrs)</option>
-                <option value="Lead / Principal (8+ yrs)">Lead / Principal / Staff (8+ yrs)</option>
+                <option value="Student / Internship Prep">Student / Internship Prep (0 yrs)</option>
+                <option value="Fresher (0-1 yr)">Fresher / Recent Graduate (0-1 yr)</option>
+                <option value="Entry-Level (1-2 yrs)">Entry-Level Developer (1-2 yrs)</option>
               </select>
             </div>
           </Card>
@@ -155,10 +153,10 @@ function InterviewSetup() {
               <label className="form-label">Interview Mode</label>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}>
                 {[
-                  { id: "Technical Deep Dive", label: "Technical Deep Dive", desc: "Core concepts & syntax" },
-                  { id: "System Architecture", label: "System Design", desc: "Scale, caching & schema" },
-                  { id: "Behavioral & Leadership", label: "Behavioral (STAR)", desc: "Culture & soft skills" },
-                  { id: "Mixed Comprehensive", label: "Mixed Round", desc: "Combined 360° evaluation" },
+                  { id: "Technical Fundamentals", label: "Technical Fundamentals", desc: "Core concepts & syntax" },
+                  { id: "Project & Practical Walkthrough", label: "Project Walkthrough", desc: "Code, APIs & debugging" },
+                  { id: "Behavioral & HR (STAR)", label: "Behavioral & HR (STAR)", desc: "Teamwork & learning" },
+                  { id: "Mixed Fresher Round", label: "Mixed Fresher Round", desc: "Technical + HR basics" },
                 ].map((mode) => (
                   <div
                     key={mode.id}
@@ -278,7 +276,7 @@ function InterviewSetup() {
               </div>
 
               <div>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Seniority</span>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Experience Level</span>
                 <div style={{ fontWeight: 600, color: "#ffffff" }}>{experienceLevel}</div>
               </div>
 

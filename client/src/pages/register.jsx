@@ -10,7 +10,7 @@ function Register() {
     email: "",
     password: "",
     confirmPassword: "",
-    targetRole: "Frontend Engineer",
+    targetRole: "Junior Frontend Developer",
     agreeTerms: true,
   });
 
@@ -132,11 +132,11 @@ function Register() {
                 value={formData.targetRole}
                 onChange={handleChange}
               >
-                <option value="Frontend Engineer">Frontend Engineer (React / Next.js)</option>
-                <option value="Backend Engineer">Backend Engineer (Node / Python / Go)</option>
-                <option value="Full-Stack Engineer">Full-Stack Developer</option>
-                <option value="System Architect">System Architect</option>
-                <option value="DevOps / Cloud">DevOps & Cloud Engineer</option>
+                <option value="Junior Frontend Developer">Junior Frontend Developer (HTML / CSS / React)</option>
+                <option value="Junior Backend Developer">Junior Backend Developer (Node.js / Python / DBs)</option>
+                <option value="Entry-Level Full-Stack Developer">Entry-Level Full-Stack Developer</option>
+                <option value="Software Engineer Trainee / Intern">Software Engineer Trainee / Intern</option>
+                <option value="Associate QA / DevOps Engineer">Associate QA / DevOps Engineer</option>
               </select>
             </div>
 

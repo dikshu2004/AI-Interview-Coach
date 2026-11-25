@@ -1,20 +1,21 @@
 import mongoose from "mongoose";
 import InterviewSession from "../models/InterviewSession.js";
 import {
-  generateQuestionsAI,
+  generateFirstQuestionAI,
+  generateNextQuestionAI,
   evaluateInterviewAI,
 } from "../services/geminiService.js";
 
 /**
- * Create a new interview session and generate AI questions
+ * Create a new interview session and generate ONLY the opening question
  * POST /api/interview/generate
  */
 export const createSession = async (req, res) => {
   try {
     const {
-      role = "Frontend Engineer",
-      experienceLevel = "Senior (5-8 yrs)",
-      interviewType = "Technical Deep Dive",
+      role = "Junior Frontend Developer",
+      experienceLevel = "Fresher (0-1 yr)",
+      interviewType = "Technical Fundamentals",
       tags = [],
       questionCount = 3,
       timeLimitMinutes = 3,
@@ -23,12 +24,11 @@ export const createSession = async (req, res) => {
     const normalizedTags = Array.isArray(tags) ? tags : [];
     const requestedCount = Math.min(Math.max(Number(questionCount) || 3, 1), 10);
 
-    const questions = await generateQuestionsAI({
+    const firstQuestion = await generateFirstQuestionAI({
       role,
       experienceLevel,
       interviewType,
       tags: normalizedTags,
-      questionCount: requestedCount,
     });
 
     const session = await InterviewSession.create({
@@ -37,9 +37,9 @@ export const createSession = async (req, res) => {
       experienceLevel,
       interviewType,
       tags: normalizedTags,
-      questionCount: questions.length,
+      questionCount: requestedCount,
       timeLimitMinutes: Number(timeLimitMinutes) || 3,
-      questions,
+      questions: [firstQuestion],
       status: "in-progress",
     });
 
@@ -50,14 +50,116 @@ export const createSession = async (req, res) => {
   } catch (error) {
     console.error("Create session error:", error);
     res.status(500).json({
-      message: "Failed to generate interview questions",
+      message: "Failed to generate opening interview question",
       error: error.message,
     });
   }
 };
 
 /**
- * Submit answers and trigger AI evaluation
+ * Save the candidate's answer for the current question and generate the next adaptive question
+ * POST /api/interview/:id/next
+ */
+export const submitAnswerAndNext = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid session ID" });
+    }
+
+    const { questionId, answer = "", history = [] } = req.body || {};
+
+    const session = await InterviewSession.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!session) {
+      return res.status(404).json({ message: "Interview session not found" });
+    }
+
+    if (session.status === "completed") {
+      return res.status(400).json({ message: "Interview session is already completed" });
+    }
+
+    if (session.questions.length === 0) {
+      return res.status(400).json({ message: "Interview session has no questions" });
+    }
+
+    const currentQuestion = session.questions[session.questions.length - 1];
+    const targetQuestionId = questionId !== undefined ? Number(questionId) : currentQuestion.id;
+
+    // Idempotency guard against duplicate clicks/requests for an earlier question
+    if (targetQuestionId < currentQuestion.id) {
+      return res.status(200).json({
+        message: "Next question already generated",
+        session,
+        nextQuestion: currentQuestion,
+        isComplete: false,
+      });
+    }
+
+    if (targetQuestionId !== currentQuestion.id) {
+      return res.status(400).json({ message: "Question ID does not match active question" });
+    }
+
+    currentQuestion.candidateAnswer = typeof answer === "string" ? answer : String(answer || "");
+    session.markModified("questions");
+
+    const configuredCount = session.questionCount || 3;
+
+    if (session.questions.length >= configuredCount) {
+      await session.save();
+      return res.status(200).json({
+        message: "Final answer saved",
+        session,
+        nextQuestion: null,
+        isComplete: true,
+      });
+    }
+
+    // Build authoritative Q&A history (preferring DB questions, merging any missing answers from client history)
+    const clientHistory = Array.isArray(history) ? history : [];
+    const qaHistory = session.questions.map((q) => {
+      const clientMatch = clientHistory.find((h) => Number(h.id) === Number(q.id));
+      return {
+        id: q.id,
+        category: q.category,
+        question: q.question,
+        candidateAnswer: q.candidateAnswer || clientMatch?.answer || clientMatch?.candidateAnswer || "",
+      };
+    });
+
+    const nextQuestion = await generateNextQuestionAI({
+      role: session.role,
+      experienceLevel: session.experienceLevel,
+      interviewType: session.interviewType,
+      tags: session.tags || [],
+      questionNumber: session.questions.length + 1,
+      totalQuestions: configuredCount,
+      qaHistory,
+    });
+
+    session.questions.push(nextQuestion);
+    await session.save();
+
+    return res.status(200).json({
+      message: "Next question generated",
+      session,
+      nextQuestion,
+      isComplete: false,
+    });
+  } catch (error) {
+    console.error("Generate next question error:", error);
+    res.status(500).json({
+      message: "Failed to generate the next interview question",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Submit/confirm all answers and trigger AI evaluation
  * POST /api/interview/:id/evaluate
  */
 export const evaluateSession = async (req, res) => {
@@ -81,7 +183,7 @@ export const evaluateSession = async (req, res) => {
 
     const answerTexts = session.questions.map((q) => {
       const match = answerList.find((a) => Number(a.id) === Number(q.id));
-      return match ? match.answer : "";
+      return match && match.answer !== undefined ? match.answer : (q.candidateAnswer || "");
     });
 
     const evaluation = await evaluateInterviewAI({
@@ -91,16 +193,15 @@ export const evaluateSession = async (req, res) => {
       answers: answerTexts,
     });
 
-    // Update questions with answers and feedback
-    session.questions = session.questions.map((q) => {
-      const matchAnswer = answerList.find((a) => Number(a.id) === Number(q.id));
+    // Update questions with final answers and per-question feedback
+    session.questions = session.questions.map((q, idx) => {
       const matchFeedback = (evaluation.questionFeedback || []).find(
         (f) => Number(f.id) === Number(q.id)
       );
 
       return {
         ...q.toObject(),
-        candidateAnswer: matchAnswer ? matchAnswer.answer : "",
+        candidateAnswer: answerTexts[idx] || "",
         score: matchFeedback ? matchFeedback.score : 0,
         feedback: matchFeedback ? matchFeedback.feedback : "",
       };
@@ -164,14 +265,17 @@ export const getInterviewHistory = async (req, res) => {
         ? Math.round((strongHireCount / completedSessions.length) * 100)
         : 0;
 
-    const hoursPracticed = Math.round(
-      (completedSessions.reduce(
-        (acc, s) => acc + (s.questionCount || 3) * (s.timeLimitMinutes || 3),
-        0
-      ) /
-        60) *
-        10
-    ) / 10;
+    const hoursPracticed =
+      Math.round(
+        (completedSessions.reduce(
+          (acc, s) =>
+            acc +
+            ((s.questions?.length || s.questionCount || 3) * (s.timeLimitMinutes || 3)),
+          0
+        ) /
+          60) *
+          10
+      ) / 10;
 
     res.status(200).json({
       sessions,

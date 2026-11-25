@@ -12,21 +12,21 @@ import AnimatedNumber from "../components/AnimatedNumber";
 const DEMO_QUESTIONS = [
   {
     id: 1,
-    category: "Architecture & Rendering",
-    question: "Can you explain how React 19 handles concurrency and how Server Actions change the traditional data mutation model in modern SPAs?",
-    hint: "Think about useActionState, optimistic updates, and server execution boundaries.",
+    category: "React & UI Fundamentals",
+    question: "What is the difference between props and state in React, and how do you decide which one to use in a component?",
+    hint: "Explain who owns and updates the data, immutability of props, and share a quick example like a counter or form input.",
   },
   {
     id: 2,
-    category: "Performance & Memory",
-    question: "How would you identify and resolve excessive re-renders in a large-scale React component tree? Which profiling tools and patterns do you use?",
-    hint: "Mention React DevTools Profiler, flame charts, memoization caveats, and component colocation.",
+    category: "JavaScript & Async Basics",
+    question: "How do Promises and async/await work in JavaScript, and how do you handle errors when fetching data from an API?",
+    hint: "Mention try/catch blocks, loading/error states, and checking response.ok before parsing JSON.",
   },
   {
     id: 3,
-    category: "Behavioral & Conflict",
-    question: "Tell me about a time when a product deadline was at risk due to unexpected technical debt. How did you negotiate scope with stakeholders?",
-    hint: "Structure your response using STAR: Situation, Task, Action, and quantifiable Result.",
+    category: "Behavioral & Project Walkthrough (STAR)",
+    question: "Tell me about a college or personal project you built. What was one bug or challenge you faced, and how did you debug and fix it?",
+    hint: "Structure your response using STAR: Situation, Task, Action you personally took, and the Result or lesson learned.",
   },
 ];
 
@@ -35,16 +35,26 @@ function InterviewRoom() {
   const { token } = useAuth();
 
   const stateData = location.state || {};
-  const session = stateData.session || null;
-  const questions = stateData.questions && stateData.questions.length > 0
-    ? stateData.questions
-    : DEMO_QUESTIONS;
+  const initialSession = stateData.session || null;
+  const [session, setSession] = useState(initialSession);
+  const [questions, setQuestions] = useState(() =>
+    stateData.questions && stateData.questions.length > 0
+      ? stateData.questions
+      : initialSession?.questions && initialSession.questions.length > 0
+        ? initialSession.questions
+        : DEMO_QUESTIONS
+  );
+
+  const isLiveSession = Boolean(session?._id && token);
+  const totalQuestions = isLiveSession
+    ? (session?.questionCount || stateData.questionCount || questions.length)
+    : questions.length;
 
   const config = {
-    role: stateData.role || session?.role || "Senior Frontend Engineer",
-    experienceLevel: stateData.experienceLevel || session?.experienceLevel || "Senior (5-8 yrs)",
-    interviewType: stateData.interviewType || session?.interviewType || "Technical Deep Dive",
-    questionCount: questions.length,
+    role: stateData.role || session?.role || "Junior Frontend Developer",
+    experienceLevel: stateData.experienceLevel || session?.experienceLevel || "Fresher (0-1 yr)",
+    interviewType: stateData.interviewType || session?.interviewType || "Technical Fundamentals",
+    questionCount: totalQuestions,
     timeLimitMinutes: stateData.timeLimitMinutes || session?.timeLimitMinutes || 3,
   };
 
@@ -56,6 +66,8 @@ function InterviewRoom() {
   const [showHint, setShowHint] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(config.timeLimitMinutes * 60);
   const isTimerActive = true;
+  const [isGeneratingNext, setIsGeneratingNext] = useState(false);
+  const [nextError, setNextError] = useState("");
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [evaluationData, setEvaluationData] = useState(null);
@@ -66,8 +78,9 @@ function InterviewRoom() {
     typeof window !== "undefined" &&
     Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
   const recognitionRef = useRef(null);
+  const isSubmittingRef = useRef(false);
   const currentQ = questions[currentIndex] || questions[0];
-  const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
+  const progressPercent = Math.round(((currentIndex + 1) / totalQuestions) * 100);
 
   // Initialize Speech Recognition if supported
   useEffect(() => {
@@ -159,34 +172,102 @@ function InterviewRoom() {
     return `${mins}:${rem < 10 ? "0" : ""}${rem}`;
   };
 
-  // Save answer on navigation
-  const saveCurrentAnswer = () => {
-    setAnswersMap((prev) => ({
-      ...prev,
-      [currentQ.id]: candidateAnswer,
-    }));
-  };
+  const handleNextQuestion = async () => {
+    if (isSubmittingRef.current || isGeneratingNext || isEvaluating) {
+      return;
+    }
 
-  const handleNextQuestion = () => {
-    saveCurrentAnswer();
+    isSubmittingRef.current = true;
+    setNextError("");
+
     const updatedAnswers = {
       ...answersMap,
       [currentQ.id]: candidateAnswer,
     };
+    setAnswersMap(updatedAnswers);
 
-    if (currentIndex + 1 < questions.length) {
-      const nextQ = questions[currentIndex + 1];
-      setCurrentIndex((prev) => prev + 1);
-      setCandidateAnswer(updatedAnswers[nextQ.id] || "");
-      setShowHint(false);
-      setSecondsRemaining(config.timeLimitMinutes * 60);
-      if (isSpeakingQuestion) window.speechSynthesis.cancel();
-    } else {
-      finishInterview(updatedAnswers);
+    if (isRecording) recognitionRef.current?.stop();
+    if (isSpeakingQuestion) window.speechSynthesis.cancel();
+
+    // Live adaptive backend session flow
+    if (isLiveSession) {
+      setIsGeneratingNext(true);
+      try {
+        const qaHistory = questions.slice(0, currentIndex + 1).map((q) => ({
+          id: q.id,
+          category: q.category,
+          question: q.question,
+          answer: updatedAnswers[q.id] || "",
+        }));
+
+        const res = await fetch(`${API_BASE_URL}/api/interview/${session._id}/next`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            questionId: currentQ.id,
+            answer: candidateAnswer,
+            history: qaHistory,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Could not generate the next question.");
+        }
+
+        if (data.session) {
+          setSession(data.session);
+          if (Array.isArray(data.session.questions) && data.session.questions.length > 0) {
+            setQuestions(data.session.questions);
+          }
+        }
+
+        const reachedEnd = data.isComplete || currentIndex + 1 >= totalQuestions;
+        if (reachedEnd) {
+          setIsGeneratingNext(false);
+          isSubmittingRef.current = false;
+          await finishInterview(updatedAnswers, data.session?.questions || questions);
+          return;
+        }
+
+        const nextQuestionsList = data.session?.questions || questions;
+        const nextIndex = currentIndex + 1;
+        const nextQ = data.nextQuestion || nextQuestionsList[nextIndex];
+
+        setCurrentIndex(nextIndex);
+        setCandidateAnswer(nextQ ? (updatedAnswers[nextQ.id] || "") : "");
+        setShowHint(false);
+        setSecondsRemaining(config.timeLimitMinutes * 60);
+      } catch (err) {
+        console.error("Next question generation failed:", err);
+        setNextError(err.message || "Failed to generate the next question. Please try again.");
+      } finally {
+        setIsGeneratingNext(false);
+        isSubmittingRef.current = false;
+      }
+      return;
+    }
+
+    // Demo mode fallback (when previewing without logging in)
+    try {
+      if (currentIndex + 1 < questions.length) {
+        const nextQ = questions[currentIndex + 1];
+        setCurrentIndex((prev) => prev + 1);
+        setCandidateAnswer(updatedAnswers[nextQ.id] || "");
+        setShowHint(false);
+        setSecondsRemaining(config.timeLimitMinutes * 60);
+      } else {
+        await finishInterview(updatedAnswers, questions);
+      }
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
-  const finishInterview = async (collectedAnswers = answersMap) => {
+  const finishInterview = async (collectedAnswers = answersMap, activeQuestions = questions) => {
     if (isRecording) recognitionRef.current?.stop();
     if (isSpeakingQuestion) window.speechSynthesis.cancel();
 
@@ -195,9 +276,17 @@ function InterviewRoom() {
     const elapsedMins = Math.max(1, Math.round((Date.now() - startTime) / 60000));
     const duration = `${elapsedMins} mins`;
 
-    const answersPayload = questions.map((q) => ({
+    const questionsToEvaluate =
+      Array.isArray(activeQuestions) && activeQuestions.length > 0 ? activeQuestions : questions;
+
+    const answersPayload = questionsToEvaluate.map((q) => ({
       id: q.id,
-      answer: collectedAnswers[q.id] || (q.id === currentQ.id ? candidateAnswer : ""),
+      answer:
+        collectedAnswers[q.id] !== undefined
+          ? collectedAnswers[q.id]
+          : q.id === currentQ.id
+            ? candidateAnswer
+            : (q.candidateAnswer || ""),
     }));
 
     if (session?._id && token) {
@@ -216,6 +305,9 @@ function InterviewRoom() {
 
         const data = await res.json();
         if (res.ok && data.evaluation) {
+          if (data.session) {
+            setSession(data.session);
+          }
           setEvaluationData(data.evaluation);
           setIsSessionComplete(true);
           setIsEvaluating(false);
@@ -233,9 +325,9 @@ function InterviewRoom() {
         totalWords += (a.answer || "").trim().split(/\s+/).filter(Boolean).length;
       });
 
-      const avgWords = totalWords / (questions.length || 1);
-      const techScore = Math.min(95, Math.max(60, Math.round(62 + avgWords * 0.4)));
-      const clarScore = Math.min(96, Math.max(65, Math.round(68 + avgWords * 0.3)));
+      const avgWords = totalWords / (questionsToEvaluate.length || 1);
+      const techScore = Math.min(94, Math.max(58, Math.round(60 + avgWords * 0.45)));
+      const clarScore = Math.min(95, Math.max(64, Math.round(66 + avgWords * 0.35)));
       const overall = Math.round(techScore * 0.6 + clarScore * 0.4);
 
       setEvaluationData({
@@ -244,22 +336,22 @@ function InterviewRoom() {
         clarityScore: clarScore,
         rating: overall >= 85 ? "Strong Hire" : overall >= 72 ? "Hire" : "Leaning Hire",
         badgeVariant: overall >= 85 ? "emerald" : overall >= 72 ? "cyan" : "amber",
-        keyHighlights: `Demonstrated focused communication for the ${config.role} role. Articulated trade-offs and component lifecycles cleanly.`,
-        suggestedFollowups: "Deepen low-level event loop performance edge cases and provide telemetry-backed metrics in behavioral scenarios.",
+        keyHighlights: `Demonstrated clear foundational thinking for an entry-level ${config.role} role. Explained core concepts cleanly.`,
+        suggestedFollowups: "Back up definitions with a short personal or college project example and mention basic error handling.",
         strengths: [
-          "Cohesive structural responses with logical flow",
-          "Solid comprehension of software design tradeoffs",
-          "Effective self-pacing within the allotted question duration",
+          "Clear, structured explanation style",
+          "Solid grasp of entry-level software fundamentals",
+          "Consistent pacing across timed questions",
         ],
         improvements: [
-          "Quote quantifiable impact metrics (latency ms, throughput)",
-          "Cover edge-case failure modes and circuit breakers",
+          "Include concrete examples from coursework or mini-projects",
+          "Briefly mention common edge cases like empty inputs or API errors",
         ],
       });
 
       setIsSessionComplete(true);
       setIsEvaluating(false);
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -320,7 +412,7 @@ function InterviewRoom() {
       <div style={{ marginBottom: "2rem" }}>
         <ProgressBar
           value={progressPercent}
-          label={`Question ${currentIndex + 1} of ${questions.length}`}
+          label={`Question ${currentIndex + 1} of ${totalQuestions}`}
           variant="brand"
         />
       </div>
@@ -458,18 +550,36 @@ function InterviewRoom() {
               <textarea
                 className="form-textarea"
                 style={{ minHeight: "220px", fontSize: "0.95rem", lineHeight: 1.6 }}
-                placeholder="Structure your answer clearly. Break down key concepts, architectural trade-offs, or use the STAR method (Situation, Task, Action, Result)..."
+                placeholder="Structure your answer clearly. Explain the core concept, give a small project or code example, or use STAR (Situation, Task, Action, Result)..."
                 value={candidateAnswer}
                 onChange={(e) => setCandidateAnswer(e.target.value)}
+                disabled={isGeneratingNext}
               />
             </div>
+
+            {nextError && (
+              <div className="alert-banner alert-error" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
+                {nextError}
+              </div>
+            )}
+
+            {isGeneratingNext && (
+              <div className="alert-banner alert-success" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
+                <span className="spinner" style={{ width: "0.95rem", height: "0.95rem" }} />
+                <span>
+                  {currentIndex + 1 < totalQuestions
+                    ? "Reviewing your answer and generating your tailored follow-up question..."
+                    : "Saving your final answer..."}
+                </span>
+              </div>
+            )}
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
                 Word count: {candidateAnswer.trim() ? candidateAnswer.trim().split(/\s+/).length : 0} words
               </span>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                Tip: Aim for structured paragraphs
+                {isLiveSession ? "Next question adapts to your answer" : "Demo preview mode"}
               </span>
             </div>
 
@@ -478,16 +588,20 @@ function InterviewRoom() {
                 variant="ghost"
                 size="md"
                 onClick={() => setCandidateAnswer("")}
-                disabled={!candidateAnswer}
+                disabled={!candidateAnswer || isGeneratingNext}
               >
                 Clear
               </Button>
               <Button
                 variant="primary"
                 size="md"
+                loading={isGeneratingNext}
+                disabled={isGeneratingNext || isEvaluating}
                 onClick={handleNextQuestion}
               >
-                {currentIndex + 1 < questions.length ? "Submit & Next Question →" : "Finish Interview →"}
+                {isGeneratingNext
+                  ? (currentIndex + 1 < totalQuestions ? "Generating Next..." : "Finishing...")
+                  : (currentIndex + 1 < totalQuestions ? "Submit & Next Question →" : "Finish Interview →")}
               </Button>
             </div>
           </Card>
@@ -589,8 +703,9 @@ function InterviewRoom() {
               size="sm"
               onClick={() => {
                 setIsEndModalOpen(false);
-                saveCurrentAnswer();
-                finishInterview();
+                const updated = { ...answersMap, [currentQ.id]: candidateAnswer };
+                setAnswersMap(updated);
+                finishInterview(updated, questions);
               }}
             >
               End & Generate Scorecard

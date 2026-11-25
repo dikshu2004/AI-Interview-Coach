@@ -23,15 +23,15 @@ const interviewSessionSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      default: "Software Engineer",
+      default: "Junior Software Engineer",
     },
     experienceLevel: {
       type: String,
-      default: "Mid-Level",
+      default: "Fresher (0-1 yr)",
     },
     interviewType: {
       type: String,
-      default: "Technical Deep Dive",
+      default: "Technical Fundamentals",
     },
     tags: [
       {

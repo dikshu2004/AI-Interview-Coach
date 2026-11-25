@@ -7,8 +7,8 @@ import ScrollReveal from "../components/ScrollReveal";
 function Home() {
   const features = [
     {
-      title: "Real-Time AI Interviewer",
-      desc: "Experience realistic interview scenarios with dynamically tailored questions matching real FAANG & startup rounds.",
+      title: "Adaptive AI Follow-Ups",
+      desc: "Every next question adapts to your previous answer—exploring concepts you mentioned or gently probing gaps.",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
@@ -16,11 +16,11 @@ function Home() {
           <line x1="12" y1="19" x2="12" y2="22" />
         </svg>
       ),
-      badge: "Intelligent",
+      badge: "Adaptive",
     },
     {
-      title: "Comprehensive Scorecards",
-      desc: "Get instant ratings across technical accuracy, communication clarity, conciseness, and structural delivery.",
+      title: "Clear Fresher Scorecards",
+      desc: "Get supportive, honest ratings across technical fundamentals, communication clarity, and practical examples.",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -33,19 +33,19 @@ function Home() {
       badge: "Detailed Metrics",
     },
     {
-      title: "Domain & Level Customization",
-      desc: "From Junior React Developers to Senior System Architects, tune the interview depth to your exact target tier.",
+      title: "Built for Freshers & Interns",
+      desc: "Designed specifically for students, recent graduates, and entry-level developers (0-2 yrs) preparing for first roles.",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
         </svg>
       ),
-      badge: "Customizable",
+      badge: "Entry-Level",
     },
     {
-      title: "Behavioral STAR Feedback",
-      desc: "Master standard behavioral questions using the STAR framework (Situation, Task, Action, Result) with AI critique.",
+      title: "Project & STAR Coaching",
+      desc: "Explain your college projects cleanly and master behavioral questions using the STAR method (Situation, Task, Action, Result).",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -56,12 +56,12 @@ function Home() {
   ];
 
   const categories = [
-    { title: "Frontend Engineering", roleCount: "React, Vue, TypeScript, Next.js", tag: "UI" },
-    { title: "Backend Systems", roleCount: "Node.js, Python, Golang, Microservices", tag: "API" },
-    { title: "Full-Stack Development", roleCount: "MERN Stack, GraphQL, REST APIs", tag: "Full-Stack" },
-    { title: "System Design", roleCount: "Scalability, Caching, Databases, Distributed", tag: "Architecture" },
-    { title: "Behavioral & Leadership", roleCount: "Conflict Resolution, Ownership, STAR", tag: "STAR" },
-    { title: "DevOps & Cloud", roleCount: "Docker, Kubernetes, AWS, CI/CD Pipelines", tag: "Cloud" },
+    { title: "Junior Frontend Developer", roleCount: "HTML, CSS, JavaScript, React Basics", tag: "UI" },
+    { title: "Junior Backend Developer", roleCount: "Node.js, Express, REST APIs, Databases", tag: "API" },
+    { title: "Entry-Level Full-Stack", roleCount: "MERN Stack, Auth Basics, CRUD Apps", tag: "Full-Stack" },
+    { title: "DSA & Core CS Prep", roleCount: "Arrays, Hash Maps, OOP, Time Complexity", tag: "CS Core" },
+    { title: "Behavioral & HR (STAR)", roleCount: "Projects, Teamwork, Learning Mindset", tag: "STAR" },
+    { title: "Associate QA & DevOps", roleCount: "Git, Debugging, Testing, Linux Basics", tag: "QA / Ops" },
   ];
 
   return (
@@ -109,8 +109,8 @@ function Home() {
             <Card hoverable={false} className="animate-float-gentle">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  <Badge variant="primary">Senior Frontend Round</Badge>
-                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Question 2 of 5</span>
+                  <Badge variant="primary">Fresher Frontend Round</Badge>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Question 2 of 5 • Follow-up</span>
                 </div>
                 <div className="audio-wave-container" title="AI Interviewer active">
                   <span className="audio-bar" />
@@ -122,16 +122,16 @@ function Home() {
               </div>
 
               <h3 style={{ fontSize: "1.15rem", marginBottom: "0.9rem", lineHeight: 1.45, fontWeight: 600 }}>
-                "Can you explain how React's reconciliation algorithm works and how the virtual DOM differs from the real DOM?"
+                "You mentioned useState in your last answer—what is the difference between props and state in React, and when do you lift state up?"
               </h3>
 
               <div style={{ background: "rgba(11, 15, 23, 0.55)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", alignItems: "center" }}>
                   <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>Candidate Answer Sample</span>
-                  <Badge variant="emerald">Score: 92/100</Badge>
+                  <Badge variant="emerald">Score: 90/100</Badge>
                 </div>
                 <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", margin: 0 }}>
-                  "React maintains an in-memory representation called the Virtual DOM. When state changes occur, React creates a new tree and diffs it with the previous one..."
+                  "Props are passed down from a parent component and are read-only, while state is managed inside the component. When two sibling components need the same data, I lift state up to their parent..."
                 </p>
               </div>
 

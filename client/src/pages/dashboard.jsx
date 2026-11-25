@@ -14,46 +14,46 @@ import AnimatedNumber from "../components/AnimatedNumber";
 const SAMPLE_SESSIONS = [
   {
     id: "sample-1",
-    role: "Senior React Developer",
-    topic: "React 19, Virtual DOM, & Performance",
+    role: "Junior Frontend Developer",
+    topic: "JavaScript Basics, React Props & State",
     date: "Recent Sample",
-    duration: "24 mins",
-    score: 92,
+    duration: "15 mins",
+    score: 89,
     badgeVariant: "emerald",
     rating: "Strong Hire",
     feedback: {
-      technical: 94,
-      clarity: 90,
-      structure: 92,
-      strengths: ["Clear explanation of fiber reconciler", "Solid grasp of useMemo tradeoffs"],
-      improvements: ["Could have mentioned React Server Components edge-cases"],
+      technical: 90,
+      clarity: 88,
+      structure: 89,
+      strengths: ["Clear distinction between props and state", "Good useState example from a project"],
+      improvements: ["Could mention lifting state up for sibling components"],
     },
   },
   {
     id: "sample-2",
-    role: "Full-Stack Engineer",
-    topic: "System Design: Scalable URL Shortener",
+    role: "Entry-Level Full-Stack Developer",
+    topic: "REST APIs, Express Routes & MongoDB",
     date: "Recent Sample",
-    duration: "32 mins",
-    score: 84,
+    duration: "18 mins",
+    score: 82,
     badgeVariant: "cyan",
     rating: "Hire",
     feedback: {
-      technical: 82,
-      clarity: 88,
-      structure: 84,
-      strengths: ["Great database schema indexing choices", "Clear discussion on Redis caching"],
-      improvements: ["Address base62 hashing collisions earlier in the flow"],
+      technical: 80,
+      clarity: 85,
+      structure: 82,
+      strengths: ["Clear explanation of HTTP status codes", "Good async/await error handling example"],
+      improvements: ["Explain basic MongoDB indexing trade-offs earlier"],
     },
   },
 ];
 
 const SKILL_BREAKDOWN = [
-  { name: "React & Modern JavaScript", score: 92, variant: "brand" },
-  { name: "System Design & Architecture", score: 84, variant: "cyan" },
-  { name: "Data Structures & Algorithms", score: 79, variant: "brand" },
-  { name: "Behavioral Communication (STAR)", score: 88, variant: "emerald" },
-  { name: "API & Distributed Systems", score: 81, variant: "cyan" },
+  { name: "HTML, CSS & JavaScript Basics", score: 90, variant: "brand" },
+  { name: "React Components & Hooks", score: 84, variant: "cyan" },
+  { name: "Data Structures & Problem Solving", score: 79, variant: "brand" },
+  { name: "Behavioral Communication (STAR)", score: 87, variant: "emerald" },
+  { name: "REST APIs & Database Fundamentals", score: 81, variant: "cyan" },
 ];
 
 function Dashboard() {
@@ -98,6 +98,7 @@ function Dashboard() {
             score: s.overallScore || 0,
             badgeVariant: s.badgeVariant || "cyan",
             rating: s.rating || "Completed",
+            questions: s.questions || [],
             feedback: {
               technical: s.technicalScore || 75,
               clarity: s.clarityScore || 80,
@@ -107,7 +108,7 @@ function Dashboard() {
                 : ["Clear structured thoughts", "Good foundational explanations"],
               improvements: (s.improvements && s.improvements.length > 0)
                 ? s.improvements
-                : ["Deepen architectural trade-offs", "Add telemetry benchmarks"],
+                : ["Add short concrete project examples", "Cover basic edge cases"],
             },
           }));
 
@@ -162,7 +163,7 @@ function Dashboard() {
             <h1 style={{ fontSize: "2rem" }}>
               {isAuthenticated ? `Welcome back, ${user?.name || "Candidate"}` : "Candidate Dashboard"}
             </h1>
-            <Badge variant="primary">Target: Senior Engineer</Badge>
+            <Badge variant="primary">Target: Entry-Level SWE</Badge>
           </div>
           <p>Track your interview progress, mock evaluations, and AI feedback history.</p>
         </div>
@@ -334,7 +335,7 @@ function Dashboard() {
       {activeTab === "skills" && (
         <div key="skills" className="grid-2 animate-tab-panel">
           <Card hoverable={false}>
-            <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>Core Engineering Metrics</h3>
+            <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>Core Fresher Metrics</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               {SKILL_BREAKDOWN.map((skill, idx) => (
                 <ProgressBar
@@ -350,14 +351,14 @@ function Dashboard() {
           <Card hoverable={false}>
             <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>AI Interviewer Observations</h3>
             <p style={{ fontSize: "0.9rem", lineHeight: 1.6, marginBottom: "1rem" }}>
-              Your communication scores highlight strong structured reasoning with technical depth in JavaScript concurrency and API contracts.
+              Your communication scores show clear foundational reasoning in JavaScript, React components, and REST API basics.
             </p>
-            <div style={{ background: "rgba(99, 102, 241, 0.1)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid rgba(99, 102, 241, 0.25)" }}>
+            <div style={{ background: "rgba(91, 110, 225, 0.1)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid rgba(91, 110, 225, 0.25)" }}>
               <h4 style={{ color: "var(--accent-primary)", fontSize: "0.95rem", marginBottom: "0.4rem" }}>
-                🎯 Highest Leverage Recommendation
+                Highest Leverage Recommendation
               </h4>
               <p style={{ fontSize: "0.85rem", color: "#c7d2fe" }}>
-                In corporate system design rounds, spend the first 3 minutes establishing hard numeric constraints (QPS, storage, latency bounds) before drawing schemas.
+                Pair each technical definition with a 2-sentence example from your own college or personal project, plus one edge case you handled.
               </p>
             </div>
           </Card>
@@ -368,35 +369,35 @@ function Dashboard() {
       {activeTab === "recommended" && (
         <div key="recommended" className="grid-3 animate-tab-panel">
           <Card>
-            <Badge variant="cyan" style={{ marginBottom: "0.75rem" }}>Architecture</Badge>
-            <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>Distributed Caching & Invalidation</h3>
+            <Badge variant="cyan" style={{ marginBottom: "0.75rem" }}>Backend Basics</Badge>
+            <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>REST APIs, Status Codes & Validation</h3>
             <p style={{ fontSize: "0.85rem", marginBottom: "1.25rem" }}>
-              Master cache-aside, write-through patterns, Redis clusters, and stampede prevention.
+              Practice GET/POST flows, Express middleware, input validation, and clean error handling.
             </p>
             <Link to="/setup">
-              <Button variant="outline" size="sm" className="btn-full">Start 15m Drill</Button>
+              <Button variant="outline" size="sm" className="btn-full">Start 10m Drill</Button>
             </Link>
           </Card>
 
           <Card>
-            <Badge variant="emerald" style={{ marginBottom: "0.75rem" }}>React Internals</Badge>
-            <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>Fiber Reconciler & Concurrent Mode</h3>
+            <Badge variant="emerald" style={{ marginBottom: "0.75rem" }}>React Fundamentals</Badge>
+            <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>Props, State & useEffect Dependencies</h3>
             <p style={{ fontSize: "0.85rem", marginBottom: "1.25rem" }}>
-              Practice answering questions regarding useTransition, useActionState, and async rendering pipelines.
+              Explain component data flow, lifting state up, list keys, and common hook pitfalls clearly.
             </p>
             <Link to="/setup">
-              <Button variant="outline" size="sm" className="btn-full">Start 15m Drill</Button>
+              <Button variant="outline" size="sm" className="btn-full">Start 10m Drill</Button>
             </Link>
           </Card>
 
           <Card>
-            <Badge variant="purple" style={{ marginBottom: "0.75rem" }}>Behavioral</Badge>
-            <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>Handling Scope Creep with PMs</h3>
+            <Badge variant="purple" style={{ marginBottom: "0.75rem" }}>Behavioral (STAR)</Badge>
+            <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>Walking Through Your College Project</h3>
             <p style={{ fontSize: "0.85rem", marginBottom: "1.25rem" }}>
-              Formulate crisp STAR answers demonstrating engineering trade-offs and pragmatic leadership.
+              Formulate crisp STAR answers showing teamwork, debugging a tricky bug, and what you learned.
             </p>
             <Link to="/setup">
-              <Button variant="outline" size="sm" className="btn-full">Start 15m Drill</Button>
+              <Button variant="outline" size="sm" className="btn-full">Start 10m Drill</Button>
             </Link>
           </Card>
         </div>
@@ -450,13 +451,48 @@ function Dashboard() {
             </div>
 
             <div>
-              <h4 style={{ fontSize: "0.95rem", color: "#fcd34d", marginBottom: "0.5rem" }}>🎯 Opportunities for Growth</h4>
+              <h4 style={{ fontSize: "0.95rem", color: "#fcd34d", marginBottom: "0.5rem" }}>Opportunities for Growth</h4>
               <ul style={{ paddingLeft: "1.25rem", fontSize: "0.9rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                 {selectedSession.feedback.improvements.map((imp, idx) => (
                   <li key={idx}>{imp}</li>
                 ))}
               </ul>
             </div>
+
+            {selectedSession.questions && selectedSession.questions.length > 0 && (
+              <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--border-subtle)", paddingTop: "1.25rem" }}>
+                <h4 style={{ fontSize: "0.95rem", marginBottom: "0.75rem", color: "var(--text-secondary)" }}>
+                  Question-by-Question History ({selectedSession.questions.length})
+                </h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {selectedSession.questions.map((q, idx) => (
+                    <div
+                      key={q.id || idx}
+                      style={{
+                        background: "rgba(0,0,0,0.22)",
+                        padding: "0.85rem",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--border-subtle)",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem", marginBottom: "0.35rem" }}>
+                        <strong style={{ color: "var(--text-primary)" }}>Q{idx + 1}: {q.question}</strong>
+                        {typeof q.score === "number" && q.score > 0 && (
+                          <Badge variant="primary" style={{ flexShrink: 0, height: "fit-content" }}>{q.score}/100</Badge>
+                        )}
+                      </div>
+                      <p style={{ color: "var(--text-muted)", marginBottom: q.feedback ? "0.35rem" : 0 }}>
+                        Answer: {q.candidateAnswer || "(No answer recorded)"}
+                      </p>
+                      {q.feedback && (
+                        <p style={{ color: "#a5b4fc", margin: 0 }}>Feedback: {q.feedback}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Modal>
