@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import InterviewSession from "../models/InterviewSession.js";
 import {
   generateQuestionsAI,
@@ -17,14 +18,17 @@ export const createSession = async (req, res) => {
       tags = [],
       questionCount = 3,
       timeLimitMinutes = 3,
-    } = req.body;
+    } = req.body || {};
+
+    const normalizedTags = Array.isArray(tags) ? tags : [];
+    const requestedCount = Math.min(Math.max(Number(questionCount) || 3, 1), 10);
 
     const questions = await generateQuestionsAI({
       role,
       experienceLevel,
       interviewType,
-      tags,
-      questionCount: Number(questionCount) || 3,
+      tags: normalizedTags,
+      questionCount: requestedCount,
     });
 
     const session = await InterviewSession.create({
@@ -32,7 +36,7 @@ export const createSession = async (req, res) => {
       role,
       experienceLevel,
       interviewType,
-      tags,
+      tags: normalizedTags,
       questionCount: questions.length,
       timeLimitMinutes: Number(timeLimitMinutes) || 3,
       questions,
@@ -59,7 +63,12 @@ export const createSession = async (req, res) => {
 export const evaluateSession = async (req, res) => {
   try {
     const { id } = req.params;
-    const { answers = [], duration = "15 mins" } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid session ID" });
+    }
+
+    const { answers = [], duration = "15 mins" } = req.body || {};
+    const answerList = Array.isArray(answers) ? answers : [];
 
     const session = await InterviewSession.findOne({
       _id: id,
@@ -71,7 +80,7 @@ export const evaluateSession = async (req, res) => {
     }
 
     const answerTexts = session.questions.map((q) => {
-      const match = answers.find((a) => a.id === q.id);
+      const match = answerList.find((a) => Number(a.id) === Number(q.id));
       return match ? match.answer : "";
     });
 
@@ -84,9 +93,9 @@ export const evaluateSession = async (req, res) => {
 
     // Update questions with answers and feedback
     session.questions = session.questions.map((q) => {
-      const matchAnswer = answers.find((a) => a.id === q.id);
+      const matchAnswer = answerList.find((a) => Number(a.id) === Number(q.id));
       const matchFeedback = (evaluation.questionFeedback || []).find(
-        (f) => f.id === q.id
+        (f) => Number(f.id) === Number(q.id)
       );
 
       return {
@@ -171,7 +180,7 @@ export const getInterviewHistory = async (req, res) => {
         completedCount: completedSessions.length,
         avgScore,
         strongHireRate,
-        hoursPracticed: hoursPracticed || 1.2,
+        hoursPracticed,
       },
     });
   } catch (error) {
@@ -189,6 +198,10 @@ export const getInterviewHistory = async (req, res) => {
  */
 export const getSessionById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid session ID" });
+    }
+
     const session = await InterviewSession.findOne({
       _id: req.params.id,
       user: req.user._id,

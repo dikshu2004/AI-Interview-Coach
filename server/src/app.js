@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authroute.js";
@@ -22,7 +23,14 @@ app.use((err, req, res, next) => {
     });
   }
 
-  next(err);
+  console.error("Unhandled server error:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal server error",
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ message: "API route not found" });
 });
 
 export default app;

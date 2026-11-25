@@ -1,11 +1,23 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const getGeminiClient = () => {
+const getGeminiModel = () => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey.trim() === "" || apiKey === "your_gemini_api_key_here") {
     return null;
   }
-  return new GoogleGenerativeAI(apiKey);
+  const client = new GoogleGenerativeAI(apiKey.trim());
+  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  return client.getGenerativeModel({ model: modelName });
+};
+
+const parseGeminiJson = (rawText, expectedType = "object") => {
+  const cleaned = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+  const startChar = expectedType === "array" ? "[" : "{";
+  const endChar = expectedType === "array" ? "]" : "}";
+  const start = cleaned.indexOf(startChar);
+  const end = cleaned.lastIndexOf(endChar);
+  const slice = start !== -1 && end > start ? cleaned.slice(start, end + 1) : cleaned;
+  return JSON.parse(slice);
 };
 
 // Intelligent curated bank of questions for intelligent fallback
@@ -88,11 +100,10 @@ export const generateQuestionsAI = async ({
   tags = [],
   questionCount = 3,
 }) => {
-  const gemini = getGeminiClient();
+  const model = getGeminiModel();
 
-  if (gemini) {
+  if (model) {
     try {
-      const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
       const prompt = `You are a strict and knowledgeable Lead Technical Interviewer at a top tier tech company.
 Generate ${questionCount} tailored, challenging interview questions for:
 - Target Role: ${role}
@@ -111,9 +122,7 @@ Return ONLY a valid JSON array of questions, with no markdown code fences, no ex
 ]`;
 
       const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
-      const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(cleanedText);
+      const parsed = parseGeminiJson(result.response.text(), "array");
 
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed.map((q, idx) => ({
@@ -128,21 +137,33 @@ Return ONLY a valid JSON array of questions, with no markdown code fences, no ex
     }
   }
 
-  // Resilient fallback generation
+  // Resilient fallback generation (combine role-matched bank first, then general banks so up to 10 questions stay distinct)
   const lowerRole = role.toLowerCase();
-  let baseBank = FALLBACK_QUESTION_BANKS.fullstack;
+  let orderedBanks = [
+    ...FALLBACK_QUESTION_BANKS.fullstack,
+    ...FALLBACK_QUESTION_BANKS.backend,
+    ...FALLBACK_QUESTION_BANKS.frontend,
+  ];
   if (lowerRole.includes("front") || lowerRole.includes("react") || lowerRole.includes("ui")) {
-    baseBank = FALLBACK_QUESTION_BANKS.frontend;
+    orderedBanks = [
+      ...FALLBACK_QUESTION_BANKS.frontend,
+      ...FALLBACK_QUESTION_BANKS.fullstack,
+      ...FALLBACK_QUESTION_BANKS.backend,
+    ];
   } else if (lowerRole.includes("back") || lowerRole.includes("node") || lowerRole.includes("api") || lowerRole.includes("data")) {
-    baseBank = FALLBACK_QUESTION_BANKS.backend;
+    orderedBanks = [
+      ...FALLBACK_QUESTION_BANKS.backend,
+      ...FALLBACK_QUESTION_BANKS.fullstack,
+      ...FALLBACK_QUESTION_BANKS.frontend,
+    ];
   }
 
   const generated = [];
-  const count = Math.min(questionCount || 3, 5);
+  const count = Math.min(Math.max(Number(questionCount) || 3, 1), 10);
 
   for (let i = 0; i < count; i++) {
-    const item = baseBank[i % baseBank.length];
-    const tag = tags[i % tags.length] || role;
+    const item = orderedBanks[i % orderedBanks.length];
+    const tag = tags.length > 0 ? tags[i % tags.length] : role;
     generated.push({
       id: i + 1,
       category: item.category,
@@ -163,11 +184,10 @@ export const evaluateInterviewAI = async ({
   questions = [],
   answers = [],
 }) => {
-  const gemini = getGeminiClient();
+  const model = getGeminiModel();
 
-  if (gemini) {
+  if (model) {
     try {
-      const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
       const prompt = `You are a Principal Engineering Interview Evaluator. Evaluate this candidate's interview session:
 Role: ${role}
 Experience Level: ${experienceLevel}
@@ -203,9 +223,7 @@ Note: rating must be one of ["Strong Hire", "Hire", "Leaning Hire", "Needs Work"
 badgeVariant must be one of ["emerald", "cyan", "amber", "rose"].`;
 
       const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
-      const cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(cleaned);
+      const parsed = parseGeminiJson(result.response.text(), "object");
 
       if (parsed.overallScore !== undefined) {
         return parsed;
