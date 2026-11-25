@@ -8,6 +8,8 @@ import ProgressBar from "../components/ProgressBar";
 import Modal from "../components/Modal";
 import EmptyState from "../components/EmptyState";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../config/api";
+import AnimatedNumber from "../components/AnimatedNumber";
 
 const SAMPLE_SESSIONS = [
   {
@@ -67,18 +69,15 @@ function Dashboard() {
     strongHireRate: 0,
     hoursPracticed: 0,
   });
-  const [loading, setLoading] = useState(true);
-
   // Fetch real user sessions
   useEffect(() => {
     const fetchHistory = async () => {
       if (!token) {
-        setLoading(false);
         return;
       }
 
       try {
-        const res = await fetch("http://localhost:5000/api/interview/history", {
+        const res = await fetch(`${API_BASE_URL}/api/interview/history`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -119,8 +118,6 @@ function Dashboard() {
         }
       } catch (err) {
         console.warn("Failed to fetch sessions history:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -183,37 +180,49 @@ function Dashboard() {
 
       {/* Metrics Row */}
       <div className="grid-4" style={{ marginBottom: "2.5rem" }}>
-        <Card hoverable={false}>
+        <Card hoverable={false} className="animate-fade-in stagger-1">
           <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Total Sessions</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginTop: "0.4rem" }}>
-            <h2 style={{ fontSize: "2.2rem" }}>{stats.totalSessions || (isUsingSample ? 2 : 0)}</h2>
+            <h2 style={{ fontSize: "2.2rem" }}>
+              <AnimatedNumber value={stats.totalSessions || (isUsingSample ? 2 : 0)} />
+            </h2>
             <span style={{ color: "var(--accent-emerald)", fontSize: "0.85rem", fontWeight: 600 }}>Active</span>
           </div>
           <p style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>Across targeted tracks</p>
         </Card>
 
-        <Card hoverable={false}>
+        <Card hoverable={false} className="animate-fade-in stagger-2">
           <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Average Score</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginTop: "0.4rem" }}>
-            <h2 style={{ fontSize: "2.2rem" }}>{stats.avgScore ? `${stats.avgScore}%` : (isUsingSample ? "88%" : "N/A")}</h2>
+            <h2 style={{ fontSize: "2.2rem" }}>
+              {stats.avgScore || isUsingSample ? (
+                <AnimatedNumber value={stats.avgScore || 88} suffix="%" />
+              ) : (
+                "N/A"
+              )}
+            </h2>
             <Badge variant="emerald">Strong Pace</Badge>
           </div>
           <p style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>Standard benchmarks</p>
         </Card>
 
-        <Card hoverable={false}>
+        <Card hoverable={false} className="animate-fade-in stagger-3">
           <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Practice Time</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginTop: "0.4rem" }}>
-            <h2 style={{ fontSize: "2.2rem" }}>{stats.hoursPracticed ? `${stats.hoursPracticed}h` : (isUsingSample ? "1.2h" : "0h")}</h2>
+            <h2 style={{ fontSize: "2.2rem" }}>
+              <AnimatedNumber value={stats.hoursPracticed || (isUsingSample ? 1.2 : 0)} suffix="h" />
+            </h2>
             <span style={{ color: "var(--accent-cyan)", fontSize: "0.85rem", fontWeight: 600 }}>Recorded</span>
           </div>
           <p style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>Live interview drills</p>
         </Card>
 
-        <Card hoverable={false}>
+        <Card hoverable={false} className="animate-fade-in stagger-4">
           <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Strong Hire Rate</span>
           <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginTop: "0.4rem" }}>
-            <h2 style={{ fontSize: "2.2rem" }}>{stats.strongHireRate ? `${stats.strongHireRate}%` : (isUsingSample ? "75%" : "0%")}</h2>
+            <h2 style={{ fontSize: "2.2rem" }}>
+              <AnimatedNumber value={stats.strongHireRate || (isUsingSample ? 75 : 0)} suffix="%" />
+            </h2>
             <span style={{ color: "var(--accent-emerald)", fontSize: "0.85rem", fontWeight: 600 }}>Calibrated</span>
           </div>
           <p style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>AI evaluation standards</p>
@@ -258,11 +267,12 @@ function Dashboard() {
 
       {/* Tab 1: Past Sessions */}
       {activeTab === "sessions" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div key="sessions" className="animate-tab-panel" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {filteredSessions.length > 0 ? (
-            filteredSessions.map((session) => (
+            filteredSessions.map((session, idx) => (
               <Card
                 key={session.id}
+                className={`animate-fade-in stagger-${Math.min(idx + 1, 6)}`}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -322,7 +332,7 @@ function Dashboard() {
 
       {/* Tab 2: Skill Breakdown */}
       {activeTab === "skills" && (
-        <div className="grid-2">
+        <div key="skills" className="grid-2 animate-tab-panel">
           <Card hoverable={false}>
             <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>Core Engineering Metrics</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
@@ -356,7 +366,7 @@ function Dashboard() {
 
       {/* Tab 3: Recommended Topics */}
       {activeTab === "recommended" && (
-        <div className="grid-3">
+        <div key="recommended" className="grid-3 animate-tab-panel">
           <Card>
             <Badge variant="cyan" style={{ marginBottom: "0.75rem" }}>Architecture</Badge>
             <h3 style={{ fontSize: "1.15rem", marginBottom: "0.5rem" }}>Distributed Caching & Invalidation</h3>

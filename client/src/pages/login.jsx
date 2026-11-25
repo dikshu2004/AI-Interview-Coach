@@ -52,7 +52,7 @@ function Login() {
           </div>
 
           {message && (
-            <div className={`alert-banner ${message.toLowerCase().includes("success") ? "alert-success" : "alert-error"}`}>
+            <div className={`alert-banner ${isSuccess ? "alert-success" : "alert-error"}`}>
               {message}
             </div>
           )}

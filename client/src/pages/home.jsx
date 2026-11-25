@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Card from "../components/Card";
 import Badge from "../components/Badge";
 import Button from "../components/Button";
+import ScrollReveal from "../components/ScrollReveal";
 
 function Home() {
   const features = [
@@ -55,12 +56,12 @@ function Home() {
   ];
 
   const categories = [
-    { title: "Frontend Engineering", roleCount: "React, Vue, TypeScript, Next.js", icon: "⚛️" },
-    { title: "Backend Systems", roleCount: "Node.js, Python, Golang, Microservices", icon: "⚙️" },
-    { title: "Full-Stack Development", roleCount: "MERN Stack, GraphQL, REST APIs", icon: "💻" },
-    { title: "System Design", roleCount: "Scalability, Caching, Databases, Distributed", icon: "📐" },
-    { title: "Behavioral & Leadership", roleCount: "Conflict Resolution, Ownership, STAR", icon: "🎯" },
-    { title: "DevOps & Cloud", roleCount: "Docker, Kubernetes, AWS, CI/CD Pipelines", icon: "☁️" },
+    { title: "Frontend Engineering", roleCount: "React, Vue, TypeScript, Next.js", tag: "UI" },
+    { title: "Backend Systems", roleCount: "Node.js, Python, Golang, Microservices", tag: "API" },
+    { title: "Full-Stack Development", roleCount: "MERN Stack, GraphQL, REST APIs", tag: "Full-Stack" },
+    { title: "System Design", roleCount: "Scalability, Caching, Databases, Distributed", tag: "Architecture" },
+    { title: "Behavioral & Leadership", roleCount: "Conflict Resolution, Ownership, STAR", tag: "STAR" },
+    { title: "DevOps & Cloud", roleCount: "Docker, Kubernetes, AWS, CI/CD Pipelines", tag: "Cloud" },
   ];
 
   return (
@@ -68,22 +69,22 @@ function Home() {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="container">
-          <div className="hero-pill">
-            <span className="hero-pill-badge">New</span>
-            <span>AI Mock Sessions with Real-Time Feedback</span>
+          <div className="hero-pill animate-fade-in">
+            <span className="hero-pill-badge">AI Coach</span>
+            <span>Structured Mock Interviews & Feedback</span>
           </div>
 
-          <h1 className="hero-headline">
+          <h1 className="hero-headline animate-fade-in stagger-1">
             Master Your Next Tech Interview with{" "}
-            <span className="gradient-text">Intelligent AI Coaching</span>
+            <span className="gradient-text">Calm, Focused Coaching</span>
           </h1>
 
-          <p className="hero-subtitle">
-            Practice realistic technical and behavioral interviews tailored to your exact role and experience level.
-            Receive instant, actionable critique to land your dream offer.
+          <p className="hero-subtitle animate-fade-in stagger-2">
+            Practice realistic technical and behavioral interviews tailored to your role and experience level.
+            Receive clear, actionable feedback to improve every round.
           </p>
 
-          <div className="hero-actions">
+          <div className="hero-actions animate-fade-in stagger-3">
             <Link to="/setup">
               <Button variant="primary" size="lg">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -104,8 +105,8 @@ function Home() {
           </div>
 
           {/* Interactive Card Mockup Preview */}
-          <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
-            <Card hoverable={false} className="animate-fade-in" style={{ border: "1px solid rgba(99, 102, 241, 0.3)" }}>
+          <div style={{ maxWidth: "780px", margin: "0 auto", textAlign: "left" }} className="animate-fade-in stagger-4">
+            <Card hoverable={false} className="animate-float-gentle">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                   <Badge variant="primary">Senior Frontend Round</Badge>
@@ -120,21 +121,21 @@ function Home() {
                 </div>
               </div>
 
-              <h3 style={{ fontSize: "1.2rem", marginBottom: "0.75rem", lineHeight: 1.4 }}>
+              <h3 style={{ fontSize: "1.15rem", marginBottom: "0.9rem", lineHeight: 1.45, fontWeight: 600 }}>
                 "Can you explain how React's reconciliation algorithm works and how the virtual DOM differs from the real DOM?"
               </h3>
 
-              <div style={{ background: "rgba(0,0,0,0.25)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Candidate Answer Sample:</span>
+              <div style={{ background: "rgba(11, 15, 23, 0.55)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>Candidate Answer Sample</span>
                   <Badge variant="emerald">Score: 92/100</Badge>
                 </div>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontStyle: "italic", margin: 0 }}>
+                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", margin: 0 }}>
                   "React maintains an in-memory representation called the Virtual DOM. When state changes occur, React creates a new tree and diffs it with the previous one..."
                 </p>
               </div>
 
-              <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "0.6rem", marginTop: "1rem", flexWrap: "wrap" }}>
                 <Badge variant="cyan">Clarity: 95%</Badge>
                 <Badge variant="emerald">Technical Depth: 90%</Badge>
                 <Badge variant="purple">STAR Structure: 88%</Badge>
@@ -143,7 +144,7 @@ function Home() {
           </div>
 
           {/* Stats Bar */}
-          <div className="hero-stats-row">
+          <div className="hero-stats-row animate-fade-in stagger-5">
             <div className="hero-stat-item">
               <span className="hero-stat-num">98%</span>
               <span className="hero-stat-label">Confidence Improvement</span>
@@ -165,107 +166,117 @@ function Home() {
       </section>
 
       {/* Features Grid */}
-      <section style={{ padding: "5rem 0", background: "rgba(255, 255, 255, 0.01)" }}>
+      <section style={{ padding: "4.5rem 0", borderTop: "1px solid var(--border-subtle)" }}>
         <div className="container">
-          <div className="section-header">
+          <ScrollReveal className="section-header">
             <span className="section-tag">Why AI Interview Coach</span>
-            <h2 className="section-title">Everything You Need to Ace Tech Interviews</h2>
-            <p>Built by engineers for engineers. Hone your technical clarity, storytelling, and problem-solving skills under timed conditions.</p>
-          </div>
+            <h2 className="section-title">Everything You Need to Prepare Well</h2>
+            <p>Built by engineers for engineers. Sharpen your technical clarity, storytelling, and problem-solving under timed conditions.</p>
+          </ScrollReveal>
 
           <div className="grid-2">
             {features.map((item, idx) => (
-              <Card key={idx} className="feature-card">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div className="feature-icon-wrapper">{item.icon}</div>
-                  <Badge variant="primary">{item.badge}</Badge>
-                </div>
-                <div>
-                  <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>{item.title}</h3>
-                  <p style={{ fontSize: "0.95rem" }}>{item.desc}</p>
-                </div>
-              </Card>
+              <ScrollReveal key={idx} delay={idx * 70}>
+                <Card className="feature-card" style={{ height: "100%" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div className="feature-icon-wrapper">{item.icon}</div>
+                    <Badge variant="primary">{item.badge}</Badge>
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: "1.2rem", marginBottom: "0.45rem" }}>{item.title}</h3>
+                    <p style={{ fontSize: "0.94rem" }}>{item.desc}</p>
+                  </div>
+                </Card>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* How It Works Steps */}
-      <section style={{ padding: "5rem 0" }}>
+      <section style={{ padding: "4.5rem 0", borderTop: "1px solid var(--border-subtle)" }}>
         <div className="container">
-          <div className="section-header">
+          <ScrollReveal className="section-header">
             <span className="section-tag">Methodology</span>
             <h2 className="section-title">How It Works in 3 Simple Steps</h2>
-            <p>From prompt selection to granular feedback, experience the fastest way to interview readiness.</p>
-          </div>
+            <p>From setup to structured feedback, practice consistently without distractions.</p>
+          </ScrollReveal>
 
           <div className="grid-3">
-            <Card>
-              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-primary)", marginBottom: "1rem" }}>
-                01
-              </div>
-              <h3 style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>Configure Your Session</h3>
-              <p style={{ fontSize: "0.9rem" }}>
-                Select your engineering discipline, target experience tier, and focus areas like React, System Design, or Behavioral.
-              </p>
-            </Card>
+            <ScrollReveal delay={0}>
+              <Card style={{ height: "100%" }}>
+                <div style={{ fontSize: "1.6rem", fontWeight: "700", color: "var(--accent-primary)", marginBottom: "0.85rem", fontFamily: "var(--font-heading)" }}>
+                  01
+                </div>
+                <h3 style={{ fontSize: "1.15rem", marginBottom: "0.45rem" }}>Configure Your Session</h3>
+                <p style={{ fontSize: "0.9rem" }}>
+                  Select your engineering discipline, target experience tier, and focus areas like React, System Design, or Behavioral.
+                </p>
+              </Card>
+            </ScrollReveal>
 
-            <Card>
-              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-secondary)", marginBottom: "1rem" }}>
-                02
-              </div>
-              <h3 style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>Answer in the Hot Seat</h3>
-              <p style={{ fontSize: "0.9rem" }}>
-                Face realistic, progressive questions. Type or dictate your structured response under standard interview timer limits.
-              </p>
-            </Card>
+            <ScrollReveal delay={80}>
+              <Card style={{ height: "100%" }}>
+                <div style={{ fontSize: "1.6rem", fontWeight: "700", color: "var(--accent-primary)", marginBottom: "0.85rem", fontFamily: "var(--font-heading)" }}>
+                  02
+                </div>
+                <h3 style={{ fontSize: "1.15rem", marginBottom: "0.45rem" }}>Answer Under Time Limits</h3>
+                <p style={{ fontSize: "0.9rem" }}>
+                  Face realistic, progressive questions. Type or dictate your structured response within standard interview timers.
+                </p>
+              </Card>
+            </ScrollReveal>
 
-            <Card>
-              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-emerald)", marginBottom: "1rem" }}>
-                03
-              </div>
-              <h3 style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>Review & Elevate</h3>
-              <p style={{ fontSize: "0.9rem" }}>
-                Inspect your AI-evaluated scorecard with feedback on strengths, omitted key concepts, and model answers.
-              </p>
-            </Card>
+            <ScrollReveal delay={160}>
+              <Card style={{ height: "100%" }}>
+                <div style={{ fontSize: "1.6rem", fontWeight: "700", color: "var(--accent-emerald)", marginBottom: "0.85rem", fontFamily: "var(--font-heading)" }}>
+                  03
+                </div>
+                <h3 style={{ fontSize: "1.15rem", marginBottom: "0.45rem" }}>Review & Improve</h3>
+                <p style={{ fontSize: "0.9rem" }}>
+                  Inspect your scorecard with clear feedback on strengths, missed concepts, and concrete follow-up areas.
+                </p>
+              </Card>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* Target Domains & Categories */}
-      <section style={{ padding: "5rem 0", background: "rgba(255, 255, 255, 0.015)" }}>
+      <section style={{ padding: "4.5rem 0", borderTop: "1px solid var(--border-subtle)" }}>
         <div className="container">
-          <div className="section-header">
+          <ScrollReveal className="section-header">
             <span className="section-tag">Supported Roles</span>
             <h2 className="section-title">Explore Interview Domains</h2>
-            <p>Targeted interview tracks curated for specific engineering disciplines.</p>
-          </div>
+            <p>Targeted interview tracks tailored for core engineering disciplines.</p>
+          </ScrollReveal>
 
           <div className="grid-3">
             {categories.map((cat, idx) => (
-              <Card key={idx} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "1.75rem" }}>{cat.icon}</div>
-                <h4 style={{ fontSize: "1.15rem" }}>{cat.title}</h4>
-                <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>{cat.roleCount}</p>
-                <Link to="/setup" style={{ marginTop: "auto", color: "var(--accent-primary)", fontSize: "0.875rem", fontWeight: 600 }}>
-                  Practice track →
-                </Link>
-              </Card>
+              <ScrollReveal key={idx} delay={idx * 60}>
+                <Card style={{ display: "flex", flexDirection: "column", gap: "0.75rem", height: "100%" }}>
+                  <Badge variant="purple" style={{ width: "fit-content" }}>{cat.tag}</Badge>
+                  <h4 style={{ fontSize: "1.12rem" }}>{cat.title}</h4>
+                  <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>{cat.roleCount}</p>
+                  <Link to="/setup" className="track-link" style={{ marginTop: "auto" }}>
+                    Practice track <span>→</span>
+                  </Link>
+                </Card>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* Bottom CTA Section */}
-      <section style={{ padding: "6rem 0", textAlign: "center" }}>
-        <div className="container container-narrow">
-          <Card style={{ padding: "3.5rem 2rem", background: "linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08))", borderColor: "rgba(99, 102, 241, 0.3)" }}>
-            <h2 style={{ fontSize: "2.25rem", marginBottom: "1rem" }}>
-              Ready to Ace Your Next Interview?
+      <section style={{ padding: "5rem 0", textAlign: "center", borderTop: "1px solid var(--border-subtle)" }}>
+        <ScrollReveal className="container container-narrow">
+          <Card hoverable={false} style={{ padding: "3rem 2rem" }}>
+            <h2 style={{ fontSize: "2rem", marginBottom: "0.85rem" }}>
+              Ready for Your Next Interview?
             </h2>
-            <p style={{ marginBottom: "2rem", fontSize: "1.05rem" }}>
-              Join thousands of developers leveling up their interview skills with personalized AI coaching.
+            <p style={{ marginBottom: "1.75rem", fontSize: "1rem" }}>
+              Start a calm, realistic mock round and track your progress across sessions.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
               <Link to="/setup">
@@ -276,7 +287,7 @@ function Home() {
               </Link>
             </div>
           </Card>
-        </div>
+        </ScrollReveal>
       </section>
     </div>
   );

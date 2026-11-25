@@ -6,6 +6,8 @@ import Badge from "../components/Badge";
 import ProgressBar from "../components/ProgressBar";
 import Modal from "../components/Modal";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../config/api";
+import AnimatedNumber from "../components/AnimatedNumber";
 
 const DEMO_QUESTIONS = [
   {
@@ -50,17 +52,19 @@ function InterviewRoom() {
   const [candidateAnswer, setCandidateAnswer] = useState("");
   const [answersMap, setAnswersMap] = useState({});
   const [isRecording, setIsRecording] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(false);
   const [isSpeakingQuestion, setIsSpeakingQuestion] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(config.timeLimitMinutes * 60);
-  const [isTimerActive, setIsTimerActive] = useState(true);
+  const isTimerActive = true;
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [evaluationData, setEvaluationData] = useState(null);
   const [isEndModalOpen, setIsEndModalOpen] = useState(false);
-  const [startTime] = useState(Date.now());
+  const [startTime] = useState(() => Date.now());
 
+  const speechSupported =
+    typeof window !== "undefined" &&
+    Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
   const recognitionRef = useRef(null);
   const currentQ = questions[currentIndex] || questions[0];
   const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
@@ -70,7 +74,6 @@ function InterviewRoom() {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
-      setSpeechSupported(true);
       const recognizer = new SpeechRecognition();
       recognizer.continuous = true;
       recognizer.interimResults = true;
@@ -199,7 +202,7 @@ function InterviewRoom() {
 
     if (session?._id && token) {
       try {
-        const res = await fetch(`http://localhost:5000/api/interview/${session._id}/evaluate`, {
+        const res = await fetch(`${API_BASE_URL}/api/interview/${session._id}/evaluate`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -285,6 +288,7 @@ function InterviewRoom() {
 
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <div
+            className={secondsRemaining < 30 ? "animate-timer-urgent" : ""}
             style={{
               display: "flex",
               alignItems: "center",
@@ -296,6 +300,7 @@ function InterviewRoom() {
               color: secondsRemaining < 30 ? "#fda4af" : "#ffffff",
               fontWeight: 600,
               fontSize: "0.95rem",
+              transition: "background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease",
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -339,7 +344,7 @@ function InterviewRoom() {
       {!isSessionComplete && !isEvaluating && (
         <div className="room-layout-grid">
           {/* Question Presentation Card */}
-          <Card hoverable={false} style={{ borderColor: "rgba(99, 102, 241, 0.3)" }}>
+          <Card key={currentQ.id} hoverable={false} className="animate-question-swap">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
               <Badge variant="purple">{currentQ.category || "Technical Question"}</Badge>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
@@ -416,7 +421,7 @@ function InterviewRoom() {
               </button>
 
               {showHint && (
-                <div style={{ marginTop: "0.75rem", background: "rgba(99, 102, 241, 0.1)", padding: "0.85rem", borderRadius: "var(--radius-md)", border: "1px solid rgba(99, 102, 241, 0.25)", fontSize: "0.85rem", color: "#c7d2fe" }}>
+                <div className="animate-fade-in" style={{ marginTop: "0.75rem", background: "rgba(91, 110, 225, 0.1)", padding: "0.85rem", borderRadius: "var(--radius-md)", border: "1px solid rgba(91, 110, 225, 0.24)", fontSize: "0.85rem", color: "#c7d2fe" }}>
                   {currentQ.hint || "Frame your answer with trade-offs and structural clarity."}
                 </div>
               )}
@@ -503,26 +508,26 @@ function InterviewRoom() {
           </div>
 
           <div className="grid-3" style={{ marginBottom: "2rem" }}>
-            <div style={{ background: "rgba(0,0,0,0.25)", padding: "1.5rem", borderRadius: "var(--radius-md)", textAlign: "center", border: "1px solid var(--border-subtle)" }}>
+            <div className="animate-fade-in stagger-1" style={{ background: "rgba(0,0,0,0.25)", padding: "1.5rem", borderRadius: "var(--radius-md)", textAlign: "center", border: "1px solid var(--border-subtle)" }}>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Overall Score</span>
               <div style={{ fontSize: "2.5rem", fontWeight: "800", color: "var(--accent-emerald)", fontFamily: "var(--font-heading)" }}>
-                {evaluationData.overallScore}/100
+                <AnimatedNumber value={evaluationData.overallScore} suffix="/100" />
               </div>
               <Badge variant={evaluationData.badgeVariant || "emerald"}>{evaluationData.rating}</Badge>
             </div>
 
-            <div style={{ background: "rgba(0,0,0,0.25)", padding: "1.5rem", borderRadius: "var(--radius-md)", textAlign: "center", border: "1px solid var(--border-subtle)" }}>
+            <div className="animate-fade-in stagger-2" style={{ background: "rgba(0,0,0,0.25)", padding: "1.5rem", borderRadius: "var(--radius-md)", textAlign: "center", border: "1px solid var(--border-subtle)" }}>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Clarity & Structure</span>
               <div style={{ fontSize: "2.5rem", fontWeight: "800", color: "var(--accent-cyan)", fontFamily: "var(--font-heading)" }}>
-                {evaluationData.clarityScore}%
+                <AnimatedNumber value={evaluationData.clarityScore} suffix="%" />
               </div>
               <Badge variant="cyan">Articulation</Badge>
             </div>
 
-            <div style={{ background: "rgba(0,0,0,0.25)", padding: "1.5rem", borderRadius: "var(--radius-md)", textAlign: "center", border: "1px solid var(--border-subtle)" }}>
+            <div className="animate-fade-in stagger-3" style={{ background: "rgba(0,0,0,0.25)", padding: "1.5rem", borderRadius: "var(--radius-md)", textAlign: "center", border: "1px solid var(--border-subtle)" }}>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Technical Depth</span>
               <div style={{ fontSize: "2.5rem", fontWeight: "800", color: "var(--accent-primary)", fontFamily: "var(--font-heading)" }}>
-                {evaluationData.technicalScore}%
+                <AnimatedNumber value={evaluationData.technicalScore} suffix="%" />
               </div>
               <Badge variant="primary">Subject Matter</Badge>
             </div>

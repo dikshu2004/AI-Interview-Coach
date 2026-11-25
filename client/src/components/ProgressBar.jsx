@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 
 function ProgressBar({
   value = 0,
@@ -10,6 +10,12 @@ function ProgressBar({
   className = "",
 }) {
   const percentage = Math.min(100, Math.max(0, Math.round((value / max) * 100)));
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setWidth(percentage));
+    return () => cancelAnimationFrame(id);
+  }, [percentage]);
 
   return (
     <div className={`progress-container ${className}`}>
@@ -22,7 +28,7 @@ function ProgressBar({
       <div className="progress-track" style={{ height }}>
         <div
           className={`progress-fill progress-${variant}`}
-          style={{ width: `${percentage}%` }}
+          style={{ width: `${width}%` }}
         />
       </div>
     </div>

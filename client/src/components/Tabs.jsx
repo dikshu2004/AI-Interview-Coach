@@ -1,5 +1,3 @@
-import React from "react";
-
 function Tabs({ tabs, activeTab, onChange }) {
   return (
     <div className="tabs-container">

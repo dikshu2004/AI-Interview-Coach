@@ -4,6 +4,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import Badge from "../components/Badge";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../config/api";
 
 const POPULAR_TAGS = [
   "React 19 & Hooks",
@@ -59,7 +60,7 @@ function InterviewSetup() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/interview/generate", {
+      const response = await fetch(`${API_BASE_URL}/api/interview/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +112,7 @@ function InterviewSetup() {
       <div className="setup-layout-grid">
         {/* Left Form Column */}
         <form onSubmit={handleStartInterview}>
-          <Card hoverable={false} style={{ marginBottom: "1.5rem" }}>
+          <Card hoverable={false} className="animate-fade-in stagger-1" style={{ marginBottom: "1.5rem" }}>
             <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>1. Role & Seniority</h3>
 
             <div className="form-group">
@@ -147,7 +148,7 @@ function InterviewSetup() {
             </div>
           </Card>
 
-          <Card hoverable={false} style={{ marginBottom: "1.5rem" }}>
+          <Card hoverable={false} className="animate-fade-in stagger-2" style={{ marginBottom: "1.5rem" }}>
             <h3 style={{ fontSize: "1.2rem", marginBottom: "1.25rem" }}>2. Interview Style & Limits</h3>
 
             <div className="form-group">
@@ -213,7 +214,7 @@ function InterviewSetup() {
             </div>
           </Card>
 
-          <Card hoverable={false}>
+          <Card hoverable={false} className="animate-fade-in stagger-3">
             <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>3. Focus Topics & Tags</h3>
             <p style={{ fontSize: "0.85rem", marginBottom: "1rem" }}>
               Click to select topics or add custom focus technologies:
@@ -263,8 +264,8 @@ function InterviewSetup() {
         </form>
 
         {/* Right Live Summary Sidebar */}
-        <div style={{ position: "sticky", top: "96px" }}>
-          <Card hoverable={false} style={{ borderColor: "rgba(99, 102, 241, 0.35)", background: "rgba(18, 24, 38, 0.85)" }}>
+        <div style={{ position: "sticky", top: "96px" }} className="animate-fade-in stagger-2">
+          <Card hoverable={false}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
               <h3 style={{ fontSize: "1.15rem" }}>Session Overview</h3>
               <Badge variant="emerald">Ready to Launch</Badge>

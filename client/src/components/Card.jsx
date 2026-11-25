@@ -1,5 +1,3 @@
-import React from "react";
-
 function Card({
   children,
   hoverable = true,
